@@ -2,13 +2,14 @@ package channel_responses
 
 import (
 	"fmt"
+	"github.com/cassa10/go_concurrent_samples/util"
 	"log"
 )
 
-func Sample1() {
+func Sample1SimpleChannels() {
 	logger := log.Default()
-	ch1 := make(chan searchRes[SomeType])
-	ch2 := make(chan searchRes[SomeType2])
+	ch1 := make(chan util.SearchRes[SomeType])
+	ch2 := make(chan util.SearchRes[SomeType2])
 
 	handleAsyncSearch1(logger, ch1, func() ([]SomeType, error) {
 		return []SomeType{
@@ -17,7 +18,7 @@ func Sample1() {
 		}, fmt.Errorf("conection error")
 	})
 	handleAsyncSearch1(logger, ch2, func() ([]SomeType2, error) {
-		delayInSeconds(10)
+		util.DelayInSeconds(10)
 		return []SomeType2{
 			{Name: "Pepe", Email: "pepe@a.c"},
 		}, fmt.Errorf("unexpected error")
@@ -35,12 +36,12 @@ func Sample1() {
 	logger.Println(fmt.Sprintf("Res2: %+v", res2))
 }
 
-func handleAsyncSearch1[T any](logger *log.Logger, chRes chan searchRes[T], fn func() ([]T, error)) {
-	go func(ch chan searchRes[T]) {
+func handleAsyncSearch1[T any](logger *log.Logger, chRes chan util.SearchRes[T], fn func() ([]T, error)) {
+	go func(ch chan util.SearchRes[T]) {
 		res, err := fn()
 		if err != nil {
 			logger.Println(fmt.Errorf("some error found: %w", err))
 		}
-		ch <- searchRes[T]{Results: res, Error: err} //blocking when some ch listen
+		ch <- util.SearchRes[T]{Results: res, Error: err} //blocking when some ch listen
 	}(chRes)
 }

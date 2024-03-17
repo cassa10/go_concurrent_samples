@@ -2,11 +2,12 @@ package channel_responses
 
 import (
 	"fmt"
+	"github.com/cassa10/go_concurrent_samples/util"
 	"log"
 	"sync"
 )
 
-func Sample2() {
+func Sample2GenericChannels() {
 	logger := log.Default()
 
 	asyncCalls := 2
@@ -21,7 +22,7 @@ func Sample2() {
 		}, fmt.Errorf("some error sarasa")
 	})
 	handleAsyncSearch2(logger, wg, ch, func() ([]SomeType2, error) {
-		delayInSeconds(3)
+		util.DelayInSeconds(3)
 		return []SomeType2{
 			{Name: "Pepe", Email: "pepe@a.c"},
 		}, nil
@@ -37,14 +38,14 @@ func Sample2() {
 		respLs = append(respLs, chResp)
 	}
 	logger.Println(fmt.Sprintf("RespLs: %+v", respLs))
-	var res1 searchRes[SomeType]
-	var res2 searchRes[SomeType2]
+	var res1 util.SearchRes[SomeType]
+	var res2 util.SearchRes[SomeType2]
 	for _, res := range respLs {
 		switch res.(type) {
-		case searchRes[SomeType]:
-			res1 = res.(searchRes[SomeType])
-		case searchRes[SomeType2]:
-			res2 = res.(searchRes[SomeType2])
+		case util.SearchRes[SomeType]:
+			res1 = res.(util.SearchRes[SomeType])
+		case util.SearchRes[SomeType2]:
+			res2 = res.(util.SearchRes[SomeType2])
 		default:
 			logger.Println("error!!!!")
 		}
@@ -60,13 +61,13 @@ func handleAsyncSearch2[T any](logger *log.Logger, waitGroup *sync.WaitGroup, ch
 		if err != nil {
 			logger.Println(fmt.Errorf("some error found: %w", err))
 		}
-		ch <- searchRes[T]{Results: res, Error: err}
+		ch <- util.SearchRes[T]{Results: res, Error: err}
 		logger.Println("DONE!")
 		wg.Done()
 	}(chRes, waitGroup)
 }
 
-func anyError(ls []searchRes[any]) bool {
+func anyError(ls []util.SearchRes[any]) bool {
 	for _, elem := range ls {
 		if elem.Error != nil {
 			return true
@@ -76,7 +77,7 @@ func anyError(ls []searchRes[any]) bool {
 }
 
 func getError(resp any) error {
-	r, ok := resp.(searchRes[any])
+	r, ok := resp.(util.SearchRes[any])
 	if !ok {
 		return fmt.Errorf("cannot get error")
 	}

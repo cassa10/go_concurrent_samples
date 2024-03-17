@@ -2,15 +2,16 @@ package channels_simple
 
 import (
 	"fmt"
+	"github.com/cassa10/go_concurrent_samples/util"
 	"log"
 )
 
 func samples() {
-	doAllIf(false, []func(){
+	util.DoAllIf(false, []func(){
 		blockChannel,
 		blockChannel2,
 	})
-	doAllIf(true, []func(){
+	util.DoAllIf(true, []func(){
 		badNonBlockChannel,
 		okNonBlockChannel,
 	})
@@ -65,14 +66,6 @@ func okNonBlockChannel() {
 	msg := <-msgCh // never execute
 
 	logWithMethod(logger, "okNonBlockChannel", msg)
-}
-
-func doAllIf(b bool, fns []func()) {
-	if b {
-		for _, fn := range fns {
-			fn()
-		}
-	}
 }
 
 func logWithMethod(logger *log.Logger, method, msg any) {
